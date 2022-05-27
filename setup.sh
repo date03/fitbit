@@ -16,7 +16,9 @@ pip install -U pip
 
 pip install requests
 pip install pyyaml
+pip install mysqlclient
 
 pip install flask
+pip install flask_sqlalchemy
 
 echo "OK $0"
