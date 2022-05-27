@@ -4,7 +4,7 @@ import random
 import requests
 import secrets
 import string
-import yaml  # PyYAML
+import yaml
 
 from flask import Flask, request, session
 
@@ -63,7 +63,7 @@ def callback():
         'Authorization': 'Basic ' + str(base64.b64encode(f"{secret['fitbit']['client_id']}:{secret['fitbit']['client_secret']}".encode()))[2:-1],
         'Content-Type': 'application/x-www-form-urlencoded',
     }
-    data = f"client_id={secret['fitbit']['client_id']}&code={authorization_code}&code_verifier={session['code_verifier']}&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A56565%2Fcallback"
+    data = f"client_id={secret['fitbit']['client_id']}&code={authorization_code}&code_verifier={session['code_verifier']}&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A56565%2Fcallback&expires_in=31536000"
 
     # Step5: アクセストークンとリフレッシュトークンの取得
     tokens = requests.post(
