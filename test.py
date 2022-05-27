@@ -57,22 +57,19 @@ def callback():
     # 認証ページで許可が押されるとこのページへ遷移
     authorization_code = request.args.get('code')
 
-    # Step4: アクセストークンとリフレッシュトークンの取得
+    # Step4: アクセストークンとリフレッシュトークンの取得準備
+    # https://dev.fitbit.com/build/reference/web-api/authorization/oauth2-token/
     headers = {
         'Authorization': 'Basic ' + str(base64.b64encode(f"{secret['fitbit']['client_id']}:{secret['fitbit']['client_secret']}".encode()))[2:-1],
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     data = f"client_id={secret['fitbit']['client_id']}&code={authorization_code}&code_verifier={session['code_verifier']}&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A56565%2Fcallback"
 
-    response = requests.post(
+    # Step5: アクセストークンとリフレッシュトークンの取得
+    tokens = requests.post(
         'https://api.fitbit.com/oauth2/token', headers=headers, data=data)
 
-    return response.content
-
-
-@app.get("/callback2")
-def callback2():
-    return "ok"
+    return tokens.content
 
 
 if __name__ == "__main__":
