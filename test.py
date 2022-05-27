@@ -1,33 +1,34 @@
-from flask import Flask, request
+from flask import Flask, request, session
 import yaml
 import requests
 import base64
 import secrets
 import string
 import hashlib
-
-
-app = Flask(__name__)
+import random
 
 with open('./secret.yaml') as f:  # 設定ファイルの読み込み
     secret = yaml.safe_load(f)
 
-
-def verifier_gen(size=64):
-    chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
-    chars += '-_'
-    return ''.join(secrets.choice(chars) for x in range(size))
+app = Flask(__name__)
+app.secret_key = secret['flask']['secret_key']
 
 
-code_verifier = b'CJ3dGgqKRB6n1U19YfEy63A_wLe0AsFR4Wq0T_RSpwgoHRL7jbCQELfuqG4bcvDt'
+def base64urlencode(code):
+    b64 = base64.b64encode(code)
+    b64_str = str(b64)[2:-1]
+    b64url = b64_str.translate(str.maketrans({'+': '-', '/': '_', '=': ''}))
+
+    return b64url
 
 
 @app.get("/")
 def top():
-    # code_verifier = verifier_gen().encode()
-    print(code_verifier)
-
-    code_challenge = hashlib.sha256(code_verifier).hexdigest()
+    code_verifier = ''.join(secrets.choice(string.digits)
+                            for _ in range(random.randint(43, 128)))
+    session["code_verifier"] = code_verifier
+    code_challenge = base64urlencode(
+        hashlib.sha256(code_verifier.encode()).digest())
 
     oauth1_url = f"\
 https://www.fitbit.com/oauth2/authorize?\
@@ -48,8 +49,8 @@ def callback():
         'Authorization': 'Basic ' + str(base64.b64encode(f"{secret['fitbit']['client_id']}:{secret['fitbit']['client_secret']}".encode()))[2:-1],
         'Content-Type': 'application/x-www-form-urlencoded',
     }
-    data = f"client_id={secret['fitbit']['client_id']}&code={request.args.get('code')}&code_verifier={str(code_verifier)[2:-1]}&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A56565%2Fcallback"
-    print(data)
+    data = f"client_id={secret['fitbit']['client_id']}&code={request.args.get('code')}&code_verifier={session['code_verifier']}&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A56565%2Fcallback"
+    print(headers, data)
     response = requests.post(
         'https://api.fitbit.com/oauth2/token', headers=headers, data=data)
 
