@@ -85,7 +85,6 @@ def callback():
             user.refresh_token = refresh_token
 
         else:                       # 存在しなかった場合、新規に登録
-            # DBにユーザを記録
             user = User(user_id, access_token, refresh_token)
 
         try:
