@@ -27,7 +27,7 @@ def base64urlencode(code):
 
 @app.get("/")
 def top():
-    # Step1: code_verifierとcode_challengeの取得
+    # Step1: code_verifierとcode_challengeの作成
     code_verifier = ''.join(secrets.choice(string.digits)
                             for _ in range(random.randint(43, 128)))
     session['code_verifier'] = code_verifier
