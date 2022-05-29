@@ -80,19 +80,21 @@ def callback():
         # DBにすでに存在するか検索
         user = User.query.filter_by(user_id=user_id).one_or_none()
 
-        if user is not None:        # 存在していた場合
-            session['user_id'] = user_id
+        if user is not None:        # 存在していた場合、トークンを更新
+            user.access_token = access_token
+            user.refresh_token = refresh_token
 
-        else:                       # 存在しなかった場合
+        else:                       # 存在しなかった場合、新規に登録
             # DBにユーザを記録
             user = User(user_id, access_token, refresh_token)
-            try:
-                db.session.add(user)
-                db.session.commit()
-            except:
-                return redirect(url_for('top'))
 
-            session['user_id'] = user_id
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except:
+            return redirect(url_for('top'))
+
+        session['user_id'] = user_id
 
         return redirect(url_for('apitest'))
 
