@@ -1,2 +1,2 @@
 # fitbit
-https://qiita.com/datesann0109/items/2709617de70d22e8904b
+https://zenn.dev/datech/articles/095e4a0f00ff40
